@@ -1,6 +1,6 @@
 # squirrel
 
-:squirrel:
+:squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel::squirrel:
 
 Utility functions for translating between Clojure and SQL idioms. Add `[squirrel "0.1.1"]` to the dependencies vector of you project.clj.
 
