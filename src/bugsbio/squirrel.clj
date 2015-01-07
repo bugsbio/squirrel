@@ -60,7 +60,7 @@
 
 (defn- get-nested-keys
   [k]
-  (map keyword (s/split (name k) #"__")))
+  (map keyword (s/split (name k) #"--")))
 
 (defn- nest
   "Interprets double underscores in keys to mean an element of a nested map,
@@ -91,6 +91,6 @@
   ([m]
    (to-clj m {}))
   ([m serializers]
-   (->> (nest m)
-        (map-keys to-kebab-case)
+   (->> (map-keys to-kebab-case m)
+        (nest)
         (deserialize-all serializers))))

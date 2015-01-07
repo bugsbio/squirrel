@@ -39,6 +39,10 @@
                    :ecstatic_cat__seven "things"
                    :ecstatic_cat__nine "coffee"}))
 
+;; keys in submaps are converted to kebab case, too
+(expect {:poop {:faeces {:waste-matter "cameron"}}}
+        (s/to-clj {:poop__faeces__waste_matter "cameron"}))
+
 ;; Maps can be arbitrarily nested, and so can serializer functions
 (expect {:a {:b {:c {:happy-dog "joy! joy!"}}}}
         (s/to-clj {:a__b__c "{\"happy-dog\":\"joy! joy!\"}"}
