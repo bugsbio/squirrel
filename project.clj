@@ -1,4 +1,4 @@
-(defproject squirrel "0.1.0-SNAPSHOT"
+(defproject squirrel "0.1.0"
   :description "Utility functions for translating between Clojure and SQL idioms."
   :url "http://github.com/bugsbio/squirrel"
   :license {:name "MIT"
