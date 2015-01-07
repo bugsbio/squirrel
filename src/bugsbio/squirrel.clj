@@ -24,7 +24,7 @@
     (serialize   [this v] (json/generate-string v))
     (deserialize [this v] (json/parse-string v true))))
 
-(def ^{:doc "Serializer that renders ratios as strings"}
+(def ^{:doc "Serializer that renders Clojure values as EDN strings"}
   edn
   (reify Serializer
     (serialize [this v]   (pr-str v))
