@@ -94,3 +94,6 @@
    (->> (map-keys to-kebab-case m)
         (nest)
         (deserialize-all serializers))))
+
+(defn insert!
+  [data db &])
