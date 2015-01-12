@@ -3,22 +3,6 @@
     [bugsbio.squirrel :as s]
     [expectations     :refer :all]))
 
-;; map-keys maps a function over the keys of a map, returing a map
-(expect {:a 1 :b 2 :c 3}
-        (s/map-keys keyword {"a" 1 "b" 2 "c" 3}))
-
-;; to-snake-case converts kebab-case keys to their snake-case equivalent.
-(expect :cat_vomiting_rainbows
-        (s/to-snake-case :cat-vomiting-rainbows))
-
-;; to-kebab-case converts kebab-case keys to their kebab-case equivalent.
-(expect :cat-vomiting-rainbows
-        (s/to-kebab-case :cat_vomiting_rainbows))
-
-;; to-sql converts a map's kebab-case keys to snake case
-(expect {:happy_dog 14}
-        (s/to-sql {:happy-dog 14}))
-
 ;; to-sql accepts an optional map of keys to serializers
 (expect {:happy_dog 14 :the_fish "{:is-this-bad \"no\"}"}
         (s/to-sql {:happy-dog 14 :the-fish {:is-this-bad "no"}}

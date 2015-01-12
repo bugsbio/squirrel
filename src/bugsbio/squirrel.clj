@@ -1,74 +1,7 @@
 (ns bugsbio.squirrel
   (:require
-    [clojure.string :as s]
-    [clojure.edn    :as edn]
-    [cheshire.core  :as json]))
-
-(defprotocol Serializer
-  (serialize
-    [this v]
-    "'Serialize' the given value into a form suitable for use in SQL.")
-  (deserialize
-    [this v]
-    "'Deserialize' the given value into the form required by Clojure."))
-
-;; Default implementation if no serializer is provided
-(extend-protocol Serializer
-  nil
-  (serialize   [this v] v)
-  (deserialize [this v] v))
-
-(def ^{:doc "Serializer than renders maps as JSON strings"}
-  json
-  (reify Serializer
-    (serialize   [this v] (json/generate-string v))
-    (deserialize [this v] (json/parse-string v true))))
-
-(def ^{:doc "Serializer that renders Clojure values as EDN strings"}
-  edn
-  (reify Serializer
-    (serialize [this v]   (pr-str v))
-    (deserialize [this v] (edn/read-string v))))
-
-(defn map-keys
-  "Map a function over the keys of a map, returning a map."
-  [f m]
-  (into {} (for [[k v] m] [(f k) v])))
-
-(defn to-snake-case
-  "Converts a kebab-case key to its snake-case equivalent."
-  [k]
-  (keyword (s/replace (name k) #"-" "_")))
-
-(defn to-kebab-case
-  "Converts a snake-case key to its kebab-case equivalent."
-  [k]
-  (keyword (s/replace (name k) #"_" "-")))
-
-(defn- deserialize-all
-  [serializers m]
-  (reduce (fn [acc [k s]]
-            (cond (map? s)
-                  (update-in acc [k] (partial deserialize-all s))
-                  :else
-                  (update-in acc [k] (partial deserialize s))))
-          m serializers))
-
-(defn- serialize-kv
-  [serializers [k v]]
-  [k (serialize (get serializers k) v)])
-
-(defn- get-nested-keys
-  [k]
-  (map keyword (s/split (name k) #"--")))
-
-(defn- nest
-  "Interprets double underscores in keys to mean an element of a nested map,
-  where the left hand of the underscore is the key of the map and the right
-  hand is the key in the nested map."
-  [m]
-  (reduce (fn [acc [k v]]
-            (assoc-in acc (get-nested-keys k) v)) {} m))
+    [bugsbio.squirrel.serializers :as s]
+    [bugsbio.squirrel.util        :as u]))
 
 (defn to-sql
   "Converts the kebab-case keys of a map into their snake-case equivalent.
@@ -77,8 +10,9 @@
   ([m]
    (to-sql m {}))
   ([m serializers]
-   (->> (map (partial serialize-kv serializers) m)
-        (map-keys to-snake-case))))
+   (when m
+     (->> (s/serialize-all serializers m)
+          (u/map-keys u/to-snake-case)))))
 
 (defn to-clj
   "Converts the snake-case keys of a map into their kebab-case equivalent.
@@ -91,9 +25,15 @@
   ([m]
    (to-clj m {}))
   ([m serializers]
-   (->> (map-keys to-kebab-case m)
-        (nest)
-        (deserialize-all serializers))))
+   (when m
+     (->> (u/map-keys u/to-kebab-case m)
+          (u/nest-on-double-dash)
+          (s/deserialize-all serializers)))))
 
-(defn insert!
-  [data db &])
+(def ^{:doc "Serializer that renders Clojure values as EDN strings"}
+  edn
+  s/edn)
+
+(def ^{:doc "Serializer than renders maps as JSON strings"}
+  json
+  s/json)
